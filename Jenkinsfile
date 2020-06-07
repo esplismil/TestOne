@@ -1,12 +1,49 @@
 #!groovy
 import groovy.json.JsonSlurperClassic
 node {
-    echo 'This is new   '
-    echo 'Master branch'    
-    echo '@@@@@@@@@@@@@@@'
-    echo scm.branches[0].name
-    checkout scm
-    echo scm.branches[0].name
-    branchname=scm.branches[0].name
-    echo branchname
+
+    def BUILD_NUMBER=env.BUILD_NUMBER
+    def RUN_ARTIFACT_DIR="tests/${BUILD_NUMBER}"
+    def SFDC_USERNAME
+
+    def HUB_ORG="ismail.saiyyed@espl.org"
+    def SFDC_HOST = "https://login.salesforce.com"
+    def JWT_KEY_CRED_ID = "C:/Users/ismail.saiyyed/salesforcekeys/server.key"
+    def CONNECTED_APP_CONSUMER_KEY="3MVG9pe2TCoA1Pf7oK96kCxuDPpdW_3hunnL2n45K7DkkyNFCV6F1tzjsgh0FJIAIxWKLrYZLdcXAYeDczuik"
+
+    println 'KEY IS' 
+    println JWT_KEY_CRED_ID
+    println HUB_ORG
+    println SFDC_HOST
+    println CONNECTED_APP_CONSUMER_KEY
+    def toolbelt = tool 'toolbelt'
+
+    stage('checkout source') {
+        // when running in multi-branch job, one must issue this command
+        checkout scm
+    }
+
+    withCredentials([file(credentialsId: JWT_KEY_CRED_ID, variable: 'jwt_key_file')]) {
+        stage('Deploye Code') {
+            if (isUnix()) {
+                rc = sh returnStatus: true, script: "${toolbelt} force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile ${jwt_key_file} --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
+            }else{
+                 rc = bat returnStatus: true, script: "\"${toolbelt}\" force:auth:jwt:grant --clientid ${CONNECTED_APP_CONSUMER_KEY} --username ${HUB_ORG} --jwtkeyfile \"${jwt_key_file}\" --setdefaultdevhubusername --instanceurl ${SFDC_HOST}"
+            }
+            if (rc != 0) { error 'hub org authorization failed' }
+
+			println rc
+			
+			// need to pull out assigned username
+			//if (isUnix()) {
+			//	rmsg = sh returnStdout: true, script: "${toolbelt} force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
+			//}else{
+			  // rmsg = bat returnStdout: true, script: "\"${toolbelt}\" force:mdapi:deploy -d manifest/. -u ${HUB_ORG}"
+			//}
+			  
+            printf rmsg
+            println('Hello from a Job DSL script!')
+            println(rmsg)
+        }
+    }
 }
