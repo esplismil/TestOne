@@ -8,7 +8,7 @@ node {
 
     def HUB_ORG="ismail.saiyyed@espl.org"
     def SFDC_HOST = "https://login.salesforce.com"
-    def JWT_KEY_CRED_ID = "C:/Users/ismail.saiyyed/salesforcekeys/server.key"
+    def JWT_KEY_CRED_ID = "c8639aa2-970c-401d-935b-135480e0babe"
     def CONNECTED_APP_CONSUMER_KEY="3MVG9pe2TCoA1Pf7oK96kCxuDPpdW_3hunnL2n45K7DkkyNFCV6F1tzjsgh0FJIAIxWKLrYZLdcXAYeDczuik"
 
     println 'KEY IS' 
